@@ -2,6 +2,8 @@
 
 A program written to detect puns in a sentence using k-Nearest Neighbour and Naive Bayes Classifier.
 
+This is made for the Fundamentals of AI final project on Pun detection, location, and analysis with different models.
+
 ## Prerequisites
 
 This program requires four dependencies, as listed below:
@@ -19,4 +21,6 @@ pip install -r requirements.txt
 
 ## How to Run
 
-TBA
+```shell
+python3 main.py
+```
