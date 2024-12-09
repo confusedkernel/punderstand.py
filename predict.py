@@ -27,30 +27,24 @@ def preprocess_text(text):
 
 def load_model(model_path):
     """
-    Loads a trained model and the TF-IDF vectorizer.
+    Loads a trained pipeline containing a model and TF-IDF vectorizer.
     """
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
     return joblib.load(model_path)
 
 
-def predict(model, vectorizer, text):
+def predict(model, text):
     """
-    Preprocesses input text, transforms it using the TF-IDF vectorizer, 
+    Preprocesses input text, transforms it using the pipeline,
     and uses the model to make predictions.
     """
-    # Preprocess the input text
-    clean_text = preprocess_text(text)
-
-    # Transform the input text
-    X = vectorizer.transform([clean_text])
-
-    # Make prediction
-    prediction = model.predict(X)
-    probability = model.predict_proba(X) if hasattr(
+    # Preprocess and predict using the pipeline
+    prediction = model.predict([text])[0]
+    probability = model.predict_proba([text])[0] if hasattr(
         model, 'predict_proba') else None
 
-    return prediction[0], probability
+    return prediction, probability
 
 
 def main():
@@ -68,18 +62,14 @@ def main():
     print("Loading the model...")
     pipeline = load_model(args.model)
 
-    # Extract model and vectorizer from the pipeline
-    vectorizer = pipeline['tfidf']
-    model = pipeline['classifier']
-
     # Predict the label
     print("Making a prediction...")
-    prediction, probability = predict(model, vectorizer, args.input)
+    prediction, probability = predict(pipeline, args.input)
 
     # Display the result
     if probability is not None:
         print(f"Prediction: {'Pun' if prediction == 1 else 'No Pun'} (Probability: {
-              max(probability[0]) * 100:.2f}%)")
+              max(probability) * 100:.2f}%)")
     else:
         print(f"Prediction: {'Pun' if prediction == 1 else 'No Pun'}")
 

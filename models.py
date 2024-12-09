@@ -1,9 +1,10 @@
+from sklearn.pipeline import Pipeline
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 import joblib
 
 
-def train_knn(X, y, n_neighbors=5):
+def train_knn(X, y, n_neighbors=9):
     """
     Trains a k-Nearest Neighbors (kNN) classifier.
 
@@ -36,15 +37,17 @@ def train_naive_bayes(X, y):
     return nbc
 
 
-def save_model(model, filepath):
+def save_model(model, vectorizer, filepath):
     """
-    Saves the trained model to a file.
+    Saves the trained model and vectorizer as a pipeline.
 
     Args:
         model: Trained model to save.
-        filepath: Path to save the model file.
+        vectorizer: Fitted TfidfVectorizer to save.
+        filepath: Path to save the pipeline.
     """
-    joblib.dump(model, filepath)
+    pipeline = Pipeline([('tfidf', vectorizer), ('classifier', model)])
+    joblib.dump(pipeline, filepath)
 
 
 def load_model(filepath):
