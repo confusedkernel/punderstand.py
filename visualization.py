@@ -1,8 +1,55 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.decomposition import PCA
 import numpy as np
+
+
+def plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5):
+    """
+    Visualizes the kNN neighbors for a specific sample.
+
+    Args:
+        knn_model: Trained kNN model.
+        sample_vector: Vector for the specific sample to analyze.
+        X_test: Test set feature matrix.
+        y_test: Test set labels.
+        n_neighbors: Number of neighbors to visualize.
+
+    Returns:
+        None
+    """
+    # Find k nearest neighbors
+    distances, indices = knn_model.kneighbors(
+        sample_vector, n_neighbors=n_neighbors)
+
+    # Get the corresponding neighbor vectors and labels
+    neighbor_vectors = X_test[indices[0]]
+    neighbor_labels = np.array(y_test)[indices[0]]
+
+    # Reduce dimensionality using PCA
+    pca = PCA(n_components=2)
+    all_vectors = np.vstack([sample_vector.toarray()] +
+                            [v.toarray() for v in neighbor_vectors])
+    reduced_vectors = pca.fit_transform(all_vectors)
+
+    # Plot neighbors and the target sample
+    plt.figure(figsize=(8, 6))
+    for i, label in enumerate(neighbor_labels):
+        plt.scatter(reduced_vectors[i + 1, 0], reduced_vectors[i + 1, 1],
+                    label=f'Neighbor {
+                        i + 1} ({"Pun" if label == 1 else "No Pun"})',
+                    edgecolor='black', s=100, alpha=0.8)
+
+    # Plot the target sample
+    plt.scatter(reduced_vectors[0, 0], reduced_vectors[0, 1],
+                color='red', label='Target Sample', s=150, edgecolor='black')
+
+    plt.title(f'{n_neighbors}-Nearest Neighbors Visualization')
+    plt.xlabel('PCA Component 1')
+    plt.ylabel('PCA Component 2')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_confusion_matrix(y_test, y_pred, model_name):
@@ -69,3 +116,25 @@ def plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5):
     plt.ylabel('PCA Component 2')
     plt.show()
 
+
+def visualize_prediction(input_text, prediction, probability=None):
+    """
+    Visualizes a prediction with input text and probability (if available).
+    """
+    plt.figure(figsize=(10, 6))
+    plt.barh(['Prediction'], [1 if prediction == 1 else 0],
+             color='green' if prediction == 1 else 'blue')
+    plt.text(0.5, 0, 'Pun' if prediction == 1 else 'No Pun',
+             fontsize=12, va='center', ha='center', color='white')
+
+    if probability is not None:
+        plt.barh(['Confidence'], [max(probability) * 100], color='orange')
+        plt.text(max(probability) * 50, -0.6, f"{max(probability) * 100:.2f}%",
+                 fontsize=12, va='center', ha='center', color='white')
+
+    plt.title("Prediction Visualization")
+    plt.xlim(0, 100)
+    plt.xlabel('Confidence Percentage')
+    plt.yticks([])
+    plt.tight_layout()
+    plt.show()

@@ -1,10 +1,12 @@
 import string
 from nltk.stem import WordNetLemmatizer
+from visualization import visualize_prediction
 from nltk.corpus import stopwords
 import argparse
 import joblib
 import os
 import nltk
+
 
 # Download required NLTK resources
 nltk.download('punkt')
@@ -12,7 +14,6 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 
 # Define a preprocessing function (consistent with training pipeline)
-
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
@@ -26,19 +27,12 @@ def preprocess_text(text):
 
 
 def load_model(model_path):
-    """
-    Loads a trained pipeline containing a model and TF-IDF vectorizer.
-    """
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
     return joblib.load(model_path)
 
 
 def predict(model, text):
-    """
-    Preprocesses input text, transforms it using the pipeline,
-    and uses the model to make predictions.
-    """
     # Preprocess and predict using the pipeline
     prediction = model.predict([text])[0]
     probability = model.predict_proba([text])[0] if hasattr(
@@ -72,6 +66,9 @@ def main():
               max(probability) * 100:.2f}%)")
     else:
         print(f"Prediction: {'Pun' if prediction == 1 else 'No Pun'}")
+
+    # Visualize the prediction
+    visualize_prediction(args.input, prediction, probability)
 
 
 if __name__ == "__main__":
