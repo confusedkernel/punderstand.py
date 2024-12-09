@@ -21,6 +21,18 @@ pip install -r requirements.txt
 
 ## How to Run
 
+### Training the models
+
+Running the main script will automatically train the two models and save them
+
 ```shell
 python3 main.py
+```
+
+### Making a prediction with the models
+
+Running the script below with your model/input sentences to predict whether the sentence is pun-intended.
+
+```shell
+python3 predict.py --model <model name> --input <text>
 ```
