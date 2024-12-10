@@ -32,7 +32,9 @@ python3 main.py
 ### Making a prediction with the models
 
 Running the script below with your model/input sentences to predict whether the sentence is pun-intended.
+When using kNN as model, you can also include `n_neighbors` flag to display a scattered plot of the input and its neighbors
+
 
 ```shell
-python3 predict.py --model <model name> --input <text>
+python3 predict.py --model <model name> --input <text> --n_neighbors <optional number>
 ```
