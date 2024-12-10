@@ -1,6 +1,7 @@
 import numpy as np
 import nltk
 import logging
+import joblib
 from datasets import load_dataset
 from preprocessing import preprocess_text
 from models import train_knn, train_naive_bayes, save_model
@@ -100,29 +101,14 @@ def main():
     logging.info(
         f"NBC 10-Fold Cross-Validation Accuracy: {cv_accuracy_nbc:.4f}")
 
+    # Save the training data
+    logging.info("Saving preprocessed training data...")
+    joblib.dump((X_train, y_train), 'train_data.pkl')  # Save training data
+
     # Save models
     save_model(knn_model, vectorizer, 'knn_model.pkl')
     save_model(nbc_model, vectorizer, 'nbc_model.pkl')
     logging.info("Models saved successfully.")
-
-    from visualization import plot_knn_neighbors
-
-
-# Load the trained kNN model and vectorizer
-pipeline = joblib.load("knn_model.pkl")  # Replace with your model path
-vectorizer = pipeline.named_steps['tfidf']
-knn_model = pipeline.named_steps['classifier']
-
-# Example test data (replace with your actual test data)
-X_test = joblib.load("X_test.pkl")  # Load your test feature matrix
-y_test = joblib.load("y_test.pkl")  # Load your test labels
-
-# Choose a sample to analyze
-sample_index = 0  # Index of the test sample
-sample_vector = X_test[sample_index]  # Get the vector for the sample
-
-# Plot the neighbors
-plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5)
 
 
 if __name__ == "__main__":

@@ -22,23 +22,23 @@ def plot_knn_neighbors(knn_model, sample_vector, X_train, y_train, n_neighbors=5
     distances, indices = knn_model.kneighbors(
         sample_vector, n_neighbors=n_neighbors)
 
-    # Get the corresponding neighbor vectors and labels
-    # Use list comprehension for sparse matrix indexing
-    neighbor_vectors = [X_train[i] for i in indices[0]]
+    # Handle sparse matrix indexing correctly
+    # Convert each neighbor vector to dense
+    neighbor_vectors = [X_train[i].toarray().flatten() for i in indices[0]]
     # Convert y_train to NumPy array for indexing
     neighbor_labels = np.array(y_train)[indices[0]]
 
     # Reduce dimensionality using PCA
     pca = PCA(n_components=2)
-    all_vectors = np.vstack([sample_vector.toarray()] +
-                            [v.toarray() for v in neighbor_vectors])
+    all_vectors = np.vstack(
+        [sample_vector.toarray().flatten()] + neighbor_vectors)
     reduced_vectors = pca.fit_transform(all_vectors)
 
     # Plot neighbors and the target sample
     plt.figure(figsize=(8, 6))
     # Plot target sample
     plt.scatter(reduced_vectors[0, 0], reduced_vectors[0, 1],
-                c='red', label='Target Sample', s=150, edgecolor='black')
+                color='red', label='Target Sample', s=150, edgecolor='black')
 
     # Plot neighbors
     for i, (x, y) in enumerate(reduced_vectors[1:]):
