@@ -105,6 +105,25 @@ def main():
     save_model(nbc_model, vectorizer, 'nbc_model.pkl')
     logging.info("Models saved successfully.")
 
+    from visualization import plot_knn_neighbors
+
+
+# Load the trained kNN model and vectorizer
+pipeline = joblib.load("knn_model.pkl")  # Replace with your model path
+vectorizer = pipeline.named_steps['tfidf']
+knn_model = pipeline.named_steps['classifier']
+
+# Example test data (replace with your actual test data)
+X_test = joblib.load("X_test.pkl")  # Load your test feature matrix
+y_test = joblib.load("y_test.pkl")  # Load your test labels
+
+# Choose a sample to analyze
+sample_index = 0  # Index of the test sample
+sample_vector = X_test[sample_index]  # Get the vector for the sample
+
+# Plot the neighbors
+plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5)
+
 
 if __name__ == "__main__":
     main()

@@ -4,15 +4,15 @@ from sklearn.decomposition import PCA
 import numpy as np
 
 
-def plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5):
+def plot_knn_neighbors(knn_model, sample_vector, X_train, y_train, n_neighbors=5):
     """
     Visualizes the kNN neighbors for a specific sample.
 
     Args:
         knn_model: Trained kNN model.
         sample_vector: Vector for the specific sample to analyze.
-        X_test: Test set feature matrix.
-        y_test: Test set labels.
+        X_train: Training set feature matrix (sparse matrix).
+        y_train: Training set labels (list or array).
         n_neighbors: Number of neighbors to visualize.
 
     Returns:
@@ -23,8 +23,10 @@ def plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5):
         sample_vector, n_neighbors=n_neighbors)
 
     # Get the corresponding neighbor vectors and labels
-    neighbor_vectors = X_test[indices[0]]
-    neighbor_labels = np.array(y_test)[indices[0]]
+    # Use list comprehension for sparse matrix indexing
+    neighbor_vectors = [X_train[i] for i in indices[0]]
+    # Convert y_train to NumPy array for indexing
+    neighbor_labels = np.array(y_train)[indices[0]]
 
     # Reduce dimensionality using PCA
     pca = PCA(n_components=2)
@@ -34,35 +36,25 @@ def plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5):
 
     # Plot neighbors and the target sample
     plt.figure(figsize=(8, 6))
-    for i, label in enumerate(neighbor_labels):
-        plt.scatter(reduced_vectors[i + 1, 0], reduced_vectors[i + 1, 1],
-                    label=f'Neighbor {
-                        i + 1} ({"Pun" if label == 1 else "No Pun"})',
-                    edgecolor='black', s=100, alpha=0.8)
-
-    # Plot the target sample
+    # Plot target sample
     plt.scatter(reduced_vectors[0, 0], reduced_vectors[0, 1],
-                color='red', label='Target Sample', s=150, edgecolor='black')
+                c='red', label='Target Sample', s=150, edgecolor='black')
 
+    # Plot neighbors
+    for i, (x, y) in enumerate(reduced_vectors[1:]):
+        label = neighbor_labels[i]
+        plt.scatter(x, y, c='blue' if label == 0 else 'green',
+                    label=f'Neighbor {
+                        i + 1} ({"No Pun" if label == 0 else "Pun"})',
+                    s=100, edgecolor='black')
+
+    # Improve plot aesthetics
     plt.title(f'{n_neighbors}-Nearest Neighbors Visualization')
     plt.xlabel('PCA Component 1')
     plt.ylabel('PCA Component 2')
-    plt.legend()
+    plt.legend(loc='best', fontsize='small')
+    plt.grid(True)
     plt.tight_layout()
-    plt.show()
-
-
-def plot_confusion_matrix(y_test, y_pred, model_name):
-    """
-    Plots a confusion matrix for the given predictions.
-    """
-    cm = confusion_matrix(y_test, y_pred)
-    plt.figure(figsize=(6, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=[
-                'No Pun', 'Pun'], yticklabels=['No Pun', 'Pun'])
-    plt.title(f'{model_name} Confusion Matrix')
-    plt.ylabel('Actual Label')
-    plt.xlabel('Predicted Label')
     plt.show()
 
 
@@ -84,36 +76,6 @@ def compare_metrics(report_knn, report_nbc):
     plt.ylabel('Score')
     plt.title('Model Performance Comparison')
     plt.legend()
-    plt.show()
-
-
-def plot_knn_neighbors(knn_model, sample_vector, X_test, y_test, n_neighbors=5):
-    """
-    Visualizes the kNN neighbors for a specific sample.
-    """
-    # Find k nearest neighbors
-    distances, indices = knn_model.kneighbors(
-        sample_vector, n_neighbors=n_neighbors)
-
-    # Get neighbor data
-    neighbor_vectors = X_test[indices[0]]
-    neighbor_labels = [y_test[i] for i in indices[0]]
-
-    # Reduce dimensionality using PCA
-    pca = PCA(n_components=2)
-    X_reduced = pca.fit_transform(
-        np.vstack([sample_vector.toarray()] + [v.toarray() for v in neighbor_vectors]))
-
-    # Plot
-    plt.figure(figsize=(8, 6))
-    plt.scatter(X_reduced[1:, 0], X_reduced[1:, 1],
-                c=neighbor_labels, cmap='coolwarm', label='Neighbors')
-    plt.scatter(X_reduced[0, 0], X_reduced[0, 1], c='green',
-                label='Sample', edgecolor='black', s=100)
-    plt.title('kNN Neighbors Visualization')
-    plt.legend()
-    plt.xlabel('PCA Component 1')
-    plt.ylabel('PCA Component 2')
     plt.show()
 
 

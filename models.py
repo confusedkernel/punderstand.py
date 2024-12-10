@@ -4,7 +4,7 @@ from sklearn.naive_bayes import MultinomialNB
 import joblib
 
 
-def train_knn(X, y, n_neighbors=9):
+def train_knn(X, y, n_neighbors=5):
     """
     Trains a k-Nearest Neighbors (kNN) classifier.
 
