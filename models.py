@@ -4,7 +4,7 @@ from sklearn.naive_bayes import MultinomialNB
 import joblib
 
 
-def train_knn(X, y, n_neighbors=5):
+def train_knn(X, y, n_neighbors=20):
     """
     Trains a k-Nearest Neighbors (kNN) classifier.
 
@@ -21,7 +21,7 @@ def train_knn(X, y, n_neighbors=5):
     return knn
 
 
-def train_naive_bayes(X, y):
+def train_naive_bayes(X, y, alpha=0.6):
     """
     Trains a Naive Bayes classifier.
 
@@ -32,7 +32,7 @@ def train_naive_bayes(X, y):
     Returns:
         Trained Naive Bayes model.
     """
-    nbc = MultinomialNB()
+    nbc = MultinomialNB(alpha=alpha, fit_prior=False)
     nbc.fit(X, y)
     return nbc
 
