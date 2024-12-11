@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.decomposition import PCA
 import numpy as np
 
 
-def plot_knn_neighbors(knn_model, sample_vector, X_train, y_train, n_neighbors=5):
+def plot_knn_neighbors(
+        knn_model, sample_vector, X_train, y_train, n_neighbors=5):
     """
     Visualizes the kNN neighbors for a specific sample.
 
@@ -60,7 +60,7 @@ def plot_knn_neighbors(knn_model, sample_vector, X_train, y_train, n_neighbors=5
 
 def compare_metrics(report_knn, report_nbc):
     """
-    Creates a bar chart to compare precision, recall, and F1-score between models.
+    Creates a bar chart to compare precision, recall, and F1-score
     """
     metrics = ['precision', 'recall', 'f1-score']
     knn_metrics = [report_knn['weighted avg'][metric] for metric in metrics]
