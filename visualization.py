@@ -3,6 +3,60 @@ from sklearn.decomposition import PCA
 import numpy as np
 
 
+def plot_nbc_feature_contributions(vectorizer, model, input_vector, class_labels, top_n=10):
+    """
+    Visualizes the most influential features for the predicted class, limited to
+    features present in the input text.
+
+    Args:
+        vectorizer: Fitted TfidfVectorizer used for transforming text.
+        model: Trained Naive Bayes model.
+        input_vector: Vectorized input text (sparse matrix).
+        class_labels: List of class labels (e.g., ["No Pun", "Pun"]).
+        top_n: Number of top features to display.
+
+    Returns:
+        None
+    """
+    feature_names = vectorizer.get_feature_names_out()
+    # Log probabilities of features for each class
+    log_probs = model.feature_log_prob_
+    # Convert sparse matrix to dense array
+    input_vector = input_vector.toarray()[0]
+
+    # Get the predicted class
+    predicted_class = np.argmax(
+        model.predict_proba(input_vector.reshape(1, -1)))
+
+    # Contribution scores for the predicted class
+    contributions = log_probs[predicted_class] * input_vector
+
+    # Filter features that are present in the input text
+    non_zero_indices = np.nonzero(input_vector)[0]
+    filtered_contributions = contributions[non_zero_indices]
+    filtered_features = feature_names[non_zero_indices]
+
+    # Get the top N features
+    top_indices = np.argsort(np.abs(filtered_contributions))[-top_n:][::-1]
+    top_features = [filtered_features[i] for i in top_indices]
+    top_scores = [filtered_contributions[i] for i in top_indices]
+
+    # Debugging
+    print(f"Top contributions for class '{class_labels[predicted_class]}':")
+    for feature, score in zip(top_features, top_scores):
+        print(f"{feature}: {score}")
+
+    # Plot the feature contributions
+    plt.figure(figsize=(10, 6))
+    plt.barh(top_features, top_scores,
+             color='green' if predicted_class == 1 else 'blue')
+    plt.xlabel('Contribution Score')
+    plt.ylabel('Feature')
+    plt.title(f"Top {top_n} Features Contributing to Class '{class_labels[predicted_class]}'")
+    plt.tight_layout()
+    plt.show()
+
+
 def plot_knn_neighbors(
         knn_model, sample_vector, X_train, y_train, n_neighbors=5):
     """

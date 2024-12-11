@@ -1,6 +1,7 @@
+from sklearn.naive_bayes import MultinomialNB
 import string
 from nltk.stem import WordNetLemmatizer
-from visualization import visualize_prediction, plot_knn_neighbors
+from visualization import plot_knn_neighbors, plot_nbc_feature_contributions
 from nltk.corpus import stopwords
 import argparse
 import joblib
@@ -77,12 +78,12 @@ def main():
     print("Loading the model...")
     pipeline = load_model(args.model)
 
-    # Load preprocessed test data
-    X_test, y_test = load_and_preprocess_data()
+    # Load preprocessed training data
+    X_train, y_train = load_and_preprocess_data()
 
     # Extract the vectorizer and model from the pipeline
     vectorizer = pipeline.named_steps['tfidf']
-    knn_model = pipeline.named_steps['classifier']
+    classifier = pipeline.named_steps['classifier']
 
     # Preprocess the input text
     processed_text = preprocess_text(args.input)
@@ -98,16 +99,21 @@ def main():
     else:
         print(f"Prediction: {'Pun' if prediction == 1 else 'No Pun'}")
 
-    # # Visualize the prediction (optional)
-    # visualize_prediction(args.input, prediction, probability)
-
     # Visualize kNN neighbors if the model supports it
-    if hasattr(knn_model, 'kneighbors'):
+    if hasattr(classifier, 'kneighbors'):
         print("Visualizing kNN neighbors...")
         sample_vector = vectorizer.transform(
             [processed_text])  # Vectorize the input text
-        plot_knn_neighbors(knn_model, sample_vector, X_test,
-                           y_test, n_neighbors=args.n_neighbors)
+        plot_knn_neighbors(classifier, sample_vector, X_train,
+                           y_train, n_neighbors=args.n_neighbors)
+
+    # Visualize NBC feature contributions if the model is Naive Bayes
+    elif isinstance(classifier, MultinomialNB):
+        print("Visualizing NBC feature contributions...")
+        input_vector = vectorizer.transform([processed_text])
+        class_labels = ["No Pun", "Pun"]
+        plot_nbc_feature_contributions(
+            vectorizer, classifier, input_vector, class_labels)
 
 
 if __name__ == "__main__":
